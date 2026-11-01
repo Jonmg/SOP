@@ -1,0 +1,20 @@
+{
+  "nombre": "Cultural Durango",
+  "nombre_corto": "CULTURAL",
+  "nombre_en_federacion": "CULTURAL DURANGO",
+  "categoria": "Infantil Liga Honor",
+  "generacion": 2013,
+  "temporada": "2026-27",
+  "modalidad": "F11",
+  "colores": {
+    "primario": "#1d4ed8",
+    "secundario": "#ffffff",
+    "acento": "#facc15"
+  },
+  "escudo": "img/escudo.svg",
+  "repo": {
+    "owner": "Jonmg",
+    "nombre": "SOP",
+    "rama": "main"
+  }
+}
