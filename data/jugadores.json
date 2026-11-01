@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "danel-marrin",
+    "foto": null,
+    "nombre": "Danel Marrin",
+    "apodo": "",
+    "dorsal": 15,
+    "posicion": "DEF",
+    "superpoder": "",
+    "activo": true
+  }
+]
