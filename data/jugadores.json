@@ -28,5 +28,15 @@
     "posicion": "DEF",
     "superpoder": "",
     "activo": true
+  },
+  {
+    "id": "adei-martin",
+    "foto": null,
+    "nombre": "Adei Martin",
+    "apodo": "",
+    "dorsal": null,
+    "posicion": "MED",
+    "superpoder": "",
+    "activo": true
   }
 ]
