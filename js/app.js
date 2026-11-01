@@ -335,7 +335,7 @@ function vistaPartido(id) {
   ${lista('asist', '🎁') ? `<h2>🎁 Asistencias</h2><div class="pastillas">${lista('asist', '🎁')}</div>` : ''}
   ${lista('amarillas', '🟨') || lista('rojas', '🟥') ? `<h2>Tarjetas</h2><div class="pastillas">${lista('amarillas', '🟨')}${lista('rojas', '🟥')}</div>` : ''}
   ${p.cronica ? `<h2>📰 Crónica</h2><p class="cronica">${esc(p.cronica)}</p>` : ''}
-  ${p.alineacion ? `<h2>📋 Alineación</h2><p><a class="boton secundario" href="#/alineacion?${new URLSearchParams({ f: p.alineacion.f, j: p.alineacion.j.join(','), t: `J${p.jornada ?? ''} vs ${p.rival}` })}">Ver alineación (${esc(p.alineacion.f)})</a></p>` : ''}
+  ${p.alineacion ? `<h2>📋 Alineación</h2><p><a class="boton secundario" href="#/alineacion?p=${encodeURIComponent(p.id)}">📌 Ver alineación oficial (${esc(p.alineacion.f)})</a></p>` : ''}
   ${convocados.length ? `<h2>👥 Convocados (${convocados.length})</h2><div class="pastillas">${convocados.map(j => `<a class="pastilla" href="#/jugador/${esc(j.id)}">${esc(j.dorsal ?? '')} ${esc(nombreDe(j))}</a>`).join('')}</div>` : ''}`;
 }
 

@@ -6,21 +6,61 @@
 
 import { estado, esMister, guardar } from './datos.js';
 import { $, $$, esc, aviso, iniciales, fechaCorta } from './util.js';
-import { FORMACIONES, POSICIONES, jugador, partidosOrdenados } from './stats.js';
+import { FORMACIONES, POSICIONES, jugador, partido, partidosOrdenados, proximoPartido } from './stats.js';
 import { foto, nombreDe } from './componentes.js';
 
-let A = null; // { f, slots: [id|null], t, sel }
+let A = null; // { f, slots: [id|null], t, sel, partido }
 
-function desdeURL(q) {
-  const f = FORMACIONES[q.get('f')] ? q.get('f') : (estado.equipo.modalidad === 'F8' ? 'F8 3-3-1' : '4-3-3');
+const LS_BORRADOR = 'sop.alineacion';
+const formacionPorDefecto = () => (estado.equipo.modalidad === 'F8' ? 'F8 3-3-1' : '4-3-3');
+const tituloPartido = (p) => `J${p.jornada ?? ''} vs ${p.rival}`;
+
+function construir(f, ids, t = '', partidoId = null) {
+  if (!FORMACIONES[f]) f = formacionPorDefecto();
   const n = FORMACIONES[f].length;
-  const ids = (q.get('j') || '').split(',');
-  const slots = Array.from({ length: n }, (_, i) => (ids[i] && jugador(ids[i]) ? ids[i] : null));
-  return { f, slots, t: q.get('t') || '', sel: null };
+  const slots = Array.from({ length: n }, (_, i) => (ids?.[i] && jugador(ids[i]) ? ids[i] : null));
+  return { f, slots, t, sel: null, partido: partidoId };
+}
+
+function desdePartido(p) {
+  return construir(p.alineacion.f, p.alineacion.j, tituloPartido(p), p.id);
+}
+
+function leerBorrador() {
+  try { const b = JSON.parse(localStorage.getItem(LS_BORRADOR) || 'null'); return b?.f ? b : null; } catch { return null; }
+}
+function guardarBorrador() {
+  try { localStorage.setItem(LS_BORRADOR, JSON.stringify({ f: A.f, j: A.slots, t: A.t })); } catch { /* modo privado */ }
+}
+
+const conAlineacion = () => partidosOrdenados().filter(p => p.alineacion?.j?.some(Boolean));
+
+// Qué se muestra al abrir la pestaña "Once":
+// 1) lo que venga en el enlace compartido; 2) la alineación oficial del próximo partido;
+// 3) la última oficial fijada; 4) el borrador de este dispositivo; 5) campo vacío.
+function inicial(q) {
+  if (q.get('p') && partido(q.get('p'))?.alineacion) return desdePartido(partido(q.get('p')));
+  if (q.has('f') || q.has('j')) return construir(q.get('f'), (q.get('j') || '').split(','), q.get('t') || '');
+  const prox = proximoPartido();
+  if (prox?.alineacion?.j?.some(Boolean)) return desdePartido(prox);
+  const ultima = conAlineacion().pop();
+  if (ultima) return desdePartido(ultima);
+  const b = leerBorrador();
+  if (b) return construir(b.f, b.j, b.t || '');
+  return construir(formacionPorDefecto(), []);
+}
+
+// ¿Lo que hay en el campo coincide con la oficial del partido cargado?
+function esOficialSinCambios() {
+  const p = A.partido && partido(A.partido);
+  if (!p?.alineacion) return false;
+  const guardada = p.alineacion.j.map(x => x || null);
+  return p.alineacion.f === A.f && A.slots.every((s, i) => (s || null) === (guardada[i] || null));
 }
 
 function urlCompartir() {
   const q = new URLSearchParams({ f: A.f, j: A.slots.map(s => s || '').join(',') });
+  if (A?.partido && esOficialSinCambios()) q.set('p', A.partido);
   if (A.t) q.set('t', A.t);
   return `${location.origin}${location.pathname}#/alineacion?${q}`;
 }
@@ -55,8 +95,23 @@ function htmlBanquillo() {
 
 function htmlTodo() {
   const partidos = partidosOrdenados().filter(p => p.estado !== 'jugado');
+  const oficiales = conAlineacion();
+  const pCargado = A.partido && partido(A.partido);
+  const hayBorrador = !!leerBorrador();
+  const sinCambios = esOficialSinCambios();
   return `
   <div class="cabecera"><h1>📋 Alineación</h1></div>
+  ${pCargado ? `<p class="${sinCambios ? 'ok-linea' : 'aviso-linea'}">${sinCambios
+      ? `📌 Alineación oficial · <b>${esc(tituloPartido(pCargado))}</b> · ${esc(fechaCorta(pCargado.fecha))}`
+      : `✏️ Modificando la oficial de <b>${esc(tituloPartido(pCargado))}</b>${esMister() ? ' — pulsa «Fijar» para guardar los cambios' : ''}`}</p>` : ''}
+  ${oficiales.length || hayBorrador ? `
+  <div class="formulario fila-campos">
+    <label>Ver <select id="al-cargar">
+      <option value="">— elegir —</option>
+      ${oficiales.slice().reverse().map(p => `<option value="${esc(p.id)}" ${p.id === A.partido ? 'selected' : ''}>📌 ${esc(tituloPartido(p))} · ${esc(fechaCorta(p.fecha))}</option>`).join('')}
+      ${hayBorrador ? '<option value="__borrador">✏️ Mi alineación (este móvil)</option>' : ''}
+    </select></label>
+  </div>` : ''}
   <div class="formulario fila-campos">
     <label>Sistema <select id="al-f">${Object.keys(FORMACIONES).map(f => `<option ${f === A.f ? 'selected' : ''}>${f}</option>`).join('')}</select></label>
     <label>Título <input id="al-t" value="${esc(A.t)}" placeholder="Ej.: J5 vs Sondika"></label>
@@ -71,7 +126,7 @@ function htmlTodo() {
   ${esMister() && partidos.length ? `
   <div class="formulario fila-campos">
     <label>Fijar como oficial del partido <select id="al-partido">${partidos.map(p =>
-      `<option value="${esc(p.id)}">J${esc(p.jornada ?? '-')} · ${esc(fechaCorta(p.fecha))} · ${esc(p.rival)}</option>`).join('')}</select></label>
+      `<option value="${esc(p.id)}" ${p.id === (A.partido || proximoPartido()?.id) ? 'selected' : ''}>J${esc(p.jornada ?? '-')} · ${esc(fechaCorta(p.fecha))} · ${esc(p.rival)}${p.alineacion ? ' 📌' : ''}</option>`).join('')}</select></label>
     <button class="boton" id="al-oficial">📌 Fijar</button>
   </div>` : ''}
   <div id="al-banquillo">${htmlBanquillo()}</div>`;
@@ -82,11 +137,20 @@ function pintar() {
   if (!caja) return;
   caja.innerHTML = htmlTodo();
   enlazar();
+  // Lo que monta cada uno se guarda en su móvil, para no perderlo al cambiar de pestaña.
+  if (!esOficialSinCambios()) guardarBorrador();
   // Mantiene la URL al día (sin recargar) para que "atrás" y "compartir" funcionen.
   history.replaceState(null, '', urlCompartir());
 }
 
 function enlazar() {
+  $('#al-cargar')?.addEventListener('change', ev => {
+    const v = ev.target.value;
+    if (!v) return;
+    if (v === '__borrador') { const b = leerBorrador(); if (b) A = construir(b.f, b.j, b.t || ''); }
+    else if (partido(v)?.alineacion) A = desdePartido(partido(v));
+    pintar();
+  });
   $('#al-f').addEventListener('change', ev => {
     const anteriores = A.slots.filter(Boolean);
     A.f = ev.target.value;
@@ -126,9 +190,15 @@ function enlazar() {
   $('#al-oficial')?.addEventListener('click', async () => {
     const p = estado.partidos.find(x => x.id === $('#al-partido').value);
     if (!p) return;
+    const anterior = p.alineacion;
     p.alineacion = { f: A.f, j: A.slots.map(s => s || '') };
-    try { await guardar('partidos', `Alineación J${p.jornada ?? ''} vs ${p.rival}`); aviso('📌 Alineación fijada en el partido'); }
-    catch (e) { aviso(e.message, 'error', 6000); }
+    try {
+      await guardar('partidos', `Alineación ${tituloPartido(p)}`);
+      A.partido = p.id;
+      if (!A.t) A.t = tituloPartido(p);
+      aviso('📌 Alineación fijada. Todos la verán en «Once» en 1-2 minutos.');
+      pintar();
+    } catch (e) { p.alineacion = anterior; aviso(e.message, 'error', 6000); }
   });
 }
 
@@ -231,6 +301,6 @@ async function compartirImagen() {
 }
 
 export function vistaAlineacion(q) {
-  A = desdeURL(q);
+  A = inicial(q);
   return [`<div id="alin">${htmlTodo()}</div>`, enlazar];
 }
