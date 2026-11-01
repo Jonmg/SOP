@@ -34,7 +34,7 @@
     "foto": "img/jugadores/adei-martin.jpg?v=1793554920248",
     "nombre": "Adei Martin",
     "apodo": "",
-    "dorsal": null,
+    "dorsal": 8,
     "posicion": "MED",
     "superpoder": "",
     "activo": true
