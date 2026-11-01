@@ -1,8 +1,8 @@
 {
   "nombre": "Cultural Durango",
   "nombre_corto": "CULTURAL",
-  "nombre_en_federacion": "CULTURAL DURANGO",
-  "categoria": "Infantil Liga Honor",
+  "nombre_en_federacion": "CULTURAL DPVA. DURANGO",
+  "categoria": "Liga Honor · Grupo 3",
   "generacion": 2013,
   "temporada": "2026-27",
   "modalidad": "F11",
@@ -16,5 +16,9 @@
     "owner": "Jonmg",
     "nombre": "SOP",
     "rama": "main"
+  },
+  "fvf": {
+    "calendario": "https://www.fvf-bff.eus/pnfg/NPcd/NFG_VisCalendario_Vis?cod_primaria=1000120&codtemporada=22&codcompeticion=24058468&codgrupo=24947217&cod_agrupacion=1773566",
+    "clasificacion": "https://www.fvf-bff.eus/pnfg/NPcd/NFG_VisClasificacion?cod_primaria=1000120&codtemporada=22&codcompeticion=24058468&codgrupo=24947217&cod_agrupacion=1773566"
   }
 }

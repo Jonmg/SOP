@@ -1,6 +1,128 @@
 {
-  "actualizado": null,
-  "jornada": null,
-  "fuente": null,
-  "tabla": []
+  "actualizado": "2026-11-01",
+  "jornada": 2,
+  "fuente": "FVF-BFF, Honor Grupo 3 (web oficial), tras la jornada 2",
+  "tabla": [
+    {
+      "pos": 1,
+      "equipo": "BASKAURI",
+      "pj": 2,
+      "g": 2,
+      "e": 0,
+      "p": 0,
+      "gf": null,
+      "gc": null,
+      "pts": 6
+    },
+    {
+      "pos": 2,
+      "equipo": "BASCONIA",
+      "pj": 2,
+      "g": 2,
+      "e": 0,
+      "p": 0,
+      "gf": null,
+      "gc": null,
+      "pts": 6
+    },
+    {
+      "pos": 3,
+      "equipo": "BERMEO F.T.",
+      "pj": 2,
+      "g": 1,
+      "e": 1,
+      "p": 0,
+      "gf": null,
+      "gc": null,
+      "pts": 4
+    },
+    {
+      "pos": 4,
+      "equipo": "CULTURAL DPVA. DURANGO",
+      "pj": 2,
+      "g": 1,
+      "e": 0,
+      "p": 1,
+      "gf": null,
+      "gc": null,
+      "pts": 3
+    },
+    {
+      "pos": 5,
+      "equipo": "INDARTSU",
+      "pj": 1,
+      "g": 1,
+      "e": 0,
+      "p": 0,
+      "gf": null,
+      "gc": null,
+      "pts": 3
+    },
+    {
+      "pos": 6,
+      "equipo": "GALDAKAO",
+      "pj": 2,
+      "g": 1,
+      "e": 0,
+      "p": 1,
+      "gf": null,
+      "gc": null,
+      "pts": 3
+    },
+    {
+      "pos": 7,
+      "equipo": "GERNIKA",
+      "pj": 2,
+      "g": 1,
+      "e": 0,
+      "p": 1,
+      "gf": null,
+      "gc": null,
+      "pts": 3
+    },
+    {
+      "pos": 8,
+      "equipo": "ARRATIA",
+      "pj": 2,
+      "g": 0,
+      "e": 1,
+      "p": 1,
+      "gf": null,
+      "gc": null,
+      "pts": 1
+    },
+    {
+      "pos": 9,
+      "equipo": "ETXEBARRI S.D.",
+      "pj": 1,
+      "g": 0,
+      "e": 0,
+      "p": 1,
+      "gf": null,
+      "gc": null,
+      "pts": 0
+    },
+    {
+      "pos": 10,
+      "equipo": "ABADIÑO",
+      "pj": 2,
+      "g": 0,
+      "e": 0,
+      "p": 2,
+      "gf": null,
+      "gc": null,
+      "pts": 0
+    },
+    {
+      "pos": 11,
+      "equipo": "AMOREBIETA",
+      "pj": 2,
+      "g": 0,
+      "e": 0,
+      "p": 2,
+      "gf": null,
+      "gc": null,
+      "pts": 0
+    }
+  ]
 }

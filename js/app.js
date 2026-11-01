@@ -80,6 +80,13 @@ function podio(titulo, icono, campo) {
   </div>`;
 }
 
+// Enlace a la página oficial de la Federación (definida en data/equipo.json → fvf).
+function enlaceFVF(tipo) {
+  const url = estado.equipo.fvf?.[tipo];
+  if (!url || !/^https:\/\//.test(url)) return '';
+  return `<p class="centro"><a class="boton secundario" href="${esc(url)}" target="_blank" rel="noopener">🌐 Ver en la web de la FVF</a></p>`;
+}
+
 function posicionEnTabla() {
   return (estado.clasificacion?.tabla || []).find(f => esNuestroEquipo(f.equipo, estado.equipo));
 }
@@ -294,7 +301,8 @@ function vistaCalendario() {
     `<button data-filtro="${f}" class="${filtroCal === f ? 'activa' : ''}">${{ todos: 'Todos', proximos: 'Próximos', jugados: 'Jugados' }[f]}</button>`).join('')}
   </div>
   ${ps.length ? `<div class="lista-partidos">${ps.map(p => (p === prox ? filaPartido(p).replace('fila-partido', 'fila-partido es-proximo') : filaPartido(p))).join('')}</div>`
-    : vacio('📅', 'No hay partidos aquí.', botonMister('#/partido-nuevo', 'Añadir partido'))}`;
+    : vacio('📅', 'No hay partidos aquí.', botonMister('#/partido-nuevo', 'Añadir partido'))}
+  ${enlaceFVF('calendario')}`;
 }
 
 function enlazarCalendario() {
@@ -499,19 +507,21 @@ function enlazarStatsPartido(id) {
 function vistaClasificacion() {
   const c = estado.clasificacion || {};
   const tabla = c.tabla || [];
+  const conGoles = tabla.some(f => f.gf != null || f.gc != null);
   return `
   <div class="cabecera"><h1>🏆 Clasificación</h1>
     ${esMister() ? `<div class="acciones"><a class="boton" href="#/importar/clasificacion">📸 Actualizar</a></div>` : ''}</div>
   <p class="sub">${esc(estado.equipo.categoria)}${c.jornada ? ' · Jornada ' + esc(c.jornada) : ''}${c.actualizado ? ' · Actualizada ' + esc(fechaCorta(c.actualizado)) : ''}</p>
   ${tabla.length ? `<div class="tabla-scroll"><table class="tabla clasif">
-    <thead><tr><th>#</th><th class="izq">Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Pts</th></tr></thead>
+    <thead><tr><th>#</th><th class="izq">Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th>${conGoles ? '<th>GF</th><th>GC</th>' : ''}<th>Pts</th></tr></thead>
     <tbody>${tabla.map(f => `
       <tr class="${esNuestroEquipo(f.equipo, estado.equipo) ? 'nosotros' : ''}">
         <td>${esc(f.pos)}</td><td class="izq">${esc(f.equipo)}</td><td>${esc(f.pj ?? '')}</td><td>${esc(f.g ?? '')}</td><td>${esc(f.e ?? '')}</td>
-        <td>${esc(f.p ?? '')}</td><td>${esc(f.gf ?? '')}</td><td>${esc(f.gc ?? '')}</td><td><b>${esc(f.pts)}</b></td></tr>`).join('')}
+        <td>${esc(f.p ?? '')}</td>${conGoles ? `<td>${esc(f.gf ?? '')}</td><td>${esc(f.gc ?? '')}</td>` : ''}<td><b>${esc(f.pts)}</b></td></tr>`).join('')}
     </tbody></table></div>
-    ${c.fuente ? `<p class="sub">Fuente: ${esc(c.fuente)}</p>` : ''}`
-    : vacio('🏆', 'La clasificación todavía no está cargada.', botonMister('#/importar/clasificacion', '📸 Cargar desde captura'))}`;
+    ${c.fuente ? `<p class="sub">Fuente: ${esc(c.fuente)}</p>` : ''}
+    ${enlaceFVF('clasificacion')}`
+    : vacio('🏆', 'La clasificación todavía no está cargada.', botonMister('#/importar/clasificacion', '📸 Cargar desde captura') + enlaceFVF('clasificacion'))}`;
 }
 
 // ---------- Importar con IA (clasificación o calendario) ----------
