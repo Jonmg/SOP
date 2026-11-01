@@ -103,7 +103,7 @@ function vistaInicio() {
 
   return `
   <section class="hero">
-    <img class="escudo" src="${esc(eq.escudo || 'img/escudo.svg')}" alt="Escudo">
+    <img class="escudo" src="${esc(eq.escudo || 'img/escudo.png')}" alt="Escudo">
     <div>
       <h1>${esc(eq.nombre)}</h1>
       <p>${esc(eq.categoria)} · Gen. ${esc(eq.generacion)} · ${esc(eq.temporada)}</p>
@@ -732,6 +732,7 @@ function vistaMister() {
       <label>Color 1 <input type="color" name="primario" value="${esc(eq.colores?.primario || '#1d4ed8')}"></label>
       <label>Color 2 <input type="color" name="secundario" value="${esc(eq.colores?.secundario || '#ffffff')}"></label>
       <label>Acento <input type="color" name="acento" value="${esc(eq.colores?.acento || '#facc15')}"></label>
+      <label>Banda <input type="color" name="banda" value="${esc(eq.colores?.banda || '#a82418')}"></label>
     </div>
     <label>Escudo <input type="file" accept="image/*" name="escudo_archivo"></label>
     <button class="boton" type="submit">💾 Guardar ajustes</button>
@@ -764,7 +765,7 @@ function enlazarMister() {
     const d = new FormData(ev.target);
     const eq = estado.equipo;
     for (const k of ['nombre', 'nombre_corto', 'temporada', 'nombre_en_federacion', 'categoria']) eq[k] = String(d.get(k) || '').trim();
-    eq.colores = { primario: d.get('primario'), secundario: d.get('secundario'), acento: d.get('acento') };
+    eq.colores = { primario: d.get('primario'), secundario: d.get('secundario'), acento: d.get('acento'), banda: d.get('banda') };
     try {
       const f = d.get('escudo_archivo');
       if (f && f.size) {
@@ -787,6 +788,7 @@ function aplicarColores() {
   if (c.primario) r.setProperty('--club', c.primario);
   if (c.secundario) r.setProperty('--club2', c.secundario);
   if (c.acento) r.setProperty('--acento', c.acento);
+  if (c.banda) r.setProperty('--banda', c.banda);
   document.title = `SOP · ${estado.equipo.nombre || 'Stats of Players'}`;
 }
 

@@ -173,8 +173,8 @@ async function dibujar() {
   // Cabecera
   g.fillStyle = club; g.fillRect(0, 0, W, 150);
   g.fillStyle = acento; g.fillRect(0, 150, W, 8);
-  const escudo = await cargarImg(estado.equipo.escudo || 'img/escudo.svg');
-  if (escudo) g.drawImage(escudo, 30, 18, 96, 115);
+  const escudo = await cargarImg(estado.equipo.escudo || 'img/escudo.png');
+  if (escudo) g.drawImage(escudo, 34, 12, 125 * escudo.width / escudo.height, 125);
   g.fillStyle = '#fff'; g.textBaseline = 'middle';
   g.font = '900 54px "Bebas Neue", Impact, sans-serif';
   g.fillText((A.t || estado.equipo.nombre).toUpperCase(), 150, 60);

@@ -4,6 +4,7 @@
   --club: #1d4ed8;
   --club2: #ffffff;
   --acento: #facc15;
+  --banda: #a82418;
   --fondo: #0b1220;
   --panel: #131c2e;
   --panel2: #1b2740;
@@ -103,11 +104,16 @@ a.tarjeta:active { transform: scale(.99); }
 .hero { display: flex; align-items: center; gap: 14px; margin: 8px 0 4px; }
 .hero h1 { font-size: 2.6rem; margin: 0; }
 .hero p { margin: 0; color: var(--suave); }
-.escudo { width: 72px; height: 86px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,.5)); }
+.escudo { width: 76px; height: 99px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,.5)); }
+.hero { border-bottom: 4px solid var(--banda); padding-bottom: 10px; }
 
 .proximo {
-  background: linear-gradient(135deg, var(--club), color-mix(in srgb, var(--club) 40%, #000));
-  border: 0; text-align: center; position: relative; overflow: hidden;
+  /* Rayas verticales de la camiseta + banda diagonal del escudo */
+  background:
+    linear-gradient(135deg, transparent 0 62%, color-mix(in srgb, var(--banda) 55%, transparent) 62% 70%, transparent 70%),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--club2) 10%, transparent) 0 26px, transparent 26px 52px),
+    linear-gradient(160deg, var(--club), color-mix(in srgb, var(--club) 45%, #000));
+  border: 2px solid color-mix(in srgb, var(--acento) 60%, transparent); text-align: center; position: relative; overflow: hidden;
 }
 .proximo::after { content: '⚽'; position: absolute; right: -16px; bottom: -22px; font-size: 7rem; opacity: .12; }
 .proximo .etiqueta { color: var(--club2); opacity: .9; }
@@ -178,6 +184,7 @@ a.tarjeta:active { transform: scale(.99); }
 .carta.pos-POR { --c: #b45309; }
 .carta.pos-DEF { --c: #0f766e; }
 .carta.pos-MED { --c: var(--club); }
+.carta.pos-MED, .carta.pos-DEL, .carta.pos-DEF, .carta.pos-POR { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 14px, transparent 14px 28px), linear-gradient(160deg, color-mix(in srgb, var(--c) 85%, #fff 15%), color-mix(in srgb, var(--c) 55%, #000) 70%); }
 .carta.pos-DEL { --c: #b91c1c; }
 .carta-top { display: flex; justify-content: space-between; width: 100%; align-items: flex-start; }
 .dorsal { font-family: var(--titulo); font-size: 2.2rem; line-height: .9; color: var(--acento); text-shadow: 0 2px 0 rgba(0,0,0,.4); }
@@ -343,5 +350,5 @@ a.tarjeta:active { transform: scale(.99); }
 @media (min-width: 720px) {
   h1 { font-size: 2.8rem; }
   .hero h1 { font-size: 3.2rem; }
-  .escudo { width: 96px; height: 115px; }
+  .escudo { width: 96px; height: 125px; }
 }

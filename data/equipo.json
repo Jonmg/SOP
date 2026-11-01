@@ -7,11 +7,12 @@
   "temporada": "2026-27",
   "modalidad": "F11",
   "colores": {
-    "primario": "#1d4ed8",
+    "primario": "#243c78",
     "secundario": "#ffffff",
-    "acento": "#facc15"
+    "acento": "#e0a020",
+    "banda": "#a82418"
   },
-  "escudo": "img/escudo.svg",
+  "escudo": "img/escudo.png",
   "repo": {
     "owner": "Jonmg",
     "nombre": "SOP",
