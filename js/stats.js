@@ -2,7 +2,7 @@
 // las cifras de cada jugador se calculan sumando sus estadísticas partido a partido.
 
 import { estado } from './datos.js';
-import { parseFecha, hoyISO } from './util.js';
+import { parseFecha, hoyISO, propio } from './util.js';
 
 export const POSICIONES = {
   POR: { nombre: 'Portero', emoji: '🧤' },
@@ -66,7 +66,7 @@ export function statsJugador(id) {
   s.historial = [];
   s.maxGolesPartido = 0;
   for (const p of jugados()) {
-    const st = p.stats?.[id];
+    const st = propio(p.stats, id);
     if (!st?.conv) continue;
     s.conv++;
     const jugo = st.jugo !== false; // por defecto, convocado = ha jugado
@@ -114,6 +114,8 @@ export function logros(id) {
   add(s.asist >= 5, '🧠', 'Cerebro', '5 asistencias');
   add(s.mvp >= 1, '⭐', 'MVP', 'Elegido mejor del partido');
   add(s.mvp >= 3, '🌟', 'Estrella', '3 veces MVP');
+  const votado = estado.partidos.filter(p => p.votacion?.estado === 'cerrada' && p.votacion.ganador === id && p.mvp === id).length;
+  add(votado >= 1, '👥', 'Elegido por el equipo', 'MVP votado por los compañeros');
   if (j?.posicion === 'POR') {
     add(s.cero >= 1, '🧱', 'Muro', 'Portería a cero');
     add(s.cero >= 5, '🏰', 'Fortaleza', '5 porterías a cero');

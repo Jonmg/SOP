@@ -264,8 +264,26 @@ a.tarjeta:active { transform: scale(.99); }
 .partido-cabecera .marcador { margin: 10px 0; }
 .veredicto { font-family: var(--titulo); font-size: 1.8rem; margin-top: 8px; color: var(--acento); }
 .tarjeta.mvp { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, color-mix(in srgb, var(--acento) 35%, var(--panel)), var(--panel)); }
-.tarjeta.mvp .etiqueta { margin: 0; }
-.tarjeta.mvp b { font-family: var(--titulo); font-size: 2rem; font-weight: 400; }
+.tarjeta.mvp .etiqueta { margin: 0 0 2px; }
+.tarjeta.mvp b { display: block; font-family: var(--titulo); font-size: 2rem; font-weight: 400; line-height: 1; }
+.tarjeta.mvp small { display: block; }
+
+/* ---------- Votación MVP ---------- */
+.votacion.abierta { border: 2px solid var(--acento); background: linear-gradient(135deg, color-mix(in srgb, var(--acento) 18%, var(--panel)), var(--panel)); animation: brillo 2.4s infinite; }
+@keyframes brillo { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--acento) 25%, transparent); } }
+.votacion p { margin: 4px 0; }
+.candidatos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.candidato { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 56px; }
+.candidato small { font-size: .68rem; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.candidato .foto.mini { width: 44px; height: 44px; }
+.ficha.elegida { border-color: var(--acento); background: color-mix(in srgb, var(--acento) 15%, var(--panel)); }
+.pastilla.elegida { border-color: var(--acento); background: var(--acento); color: #111; font-weight: 800; }
+button.pastilla { cursor: pointer; font: inherit; }
+.opciones-encuesta { display: flex; flex-direction: column; gap: 4px; background: var(--panel); border: 1px dashed var(--borde); border-radius: 12px; padding: 10px 14px; font-weight: 600; }
+.mini-boton { min-height: 34px; padding: 4px 10px; font-size: .8rem; margin-left: 4px; }
+.recuento { display: flex; align-items: center; justify-content: space-between; padding-right: 10px; }
+.recuento .fs-nombre { opacity: 1 !important; cursor: default; }
+.separador { border: 0; border-top: 1px solid var(--borde); margin: 28px 0 8px; }
 .pastillas { display: flex; flex-wrap: wrap; gap: 6px; }
 .pastilla { background: var(--panel2); border: 1px solid var(--borde); border-radius: 99px; padding: 6px 12px; color: var(--texto); text-decoration: none; font-size: .9rem; }
 .cronica { background: var(--panel); border-radius: 14px; padding: 12px; white-space: pre-wrap; }

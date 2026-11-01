@@ -13,6 +13,12 @@ export function esc(v) {
     .replace(/'/g, '&#39;');
 }
 
+// Lee obj[clave] solo si es propia del objeto. Imprescindible con claves que vienen de
+// ids de jugador: un jugador con id "constructor" devolvería Object.prototype.constructor.
+export function propio(obj, clave) {
+  return obj != null && Object.hasOwn(obj, clave) ? obj[clave] : undefined;
+}
+
 export function slug(texto) {
   return String(texto || '')
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -24,7 +30,8 @@ export function idUnico(base, existentes) {
   const raiz = slug(base);
   let id = raiz, n = 2;
   const set = new Set(existentes);
-  while (set.has(id)) id = `${raiz}-${n++}`;
+  // Evita ids que coinciden con propiedades internas de JavaScript ("constructor"…).
+  while (set.has(id) || id in Object.prototype) id = `${raiz}-${n++}`;
   return id;
 }
 

@@ -60,6 +60,20 @@ Partidos → partido → **📝 Meter estadísticas**:
 3. Toca ⚽ / 🎁 / 🟨 / 🟥 para sumar (el «−» corrige). 🔝 = titular, ⭐ = MVP. Los minutos son opcionales.
 4. **Guardar partido**. Si los goles de los jugadores no suman el marcador, avisa (¿autogol?).
 
+## Votación del MVP (grupo de WhatsApp)
+
+Partido → **⭐ Votación MVP** (modo míster):
+
+1. **Candidatos**: salen marcados los convocados (WhatsApp admite 12 opciones como máximo).
+2. **Encuesta**: en el grupo, 📎 → Encuesta. La app copia la pregunta y los nombres.
+3. **Abrir**: en la app aparece a todos «🗳️ Vota al MVP» hasta la hora de cierre.
+   «Avisar en el grupo» prepara el mensaje con el enlace.
+4. **Recuento**: al cerrar la encuesta, se apuntan los votos con + / − y se publica.
+   Si hay empate, decide el míster.
+
+Solo se publica el ganador (con sus votos) y el 2º y 3º sin número. Los votos de cada jugador
+no se guardan en el repositorio. El MVP votado da el logro «👥 Elegido por el equipo».
+
 ## Clasificación y calendario desde la FVF
 
 La web de la Federación Vizcaína (fvf-bff.eus) y su app no ofrecen datos abiertos: la web pide

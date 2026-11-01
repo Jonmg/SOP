@@ -4,7 +4,7 @@
 import { estado, cargarTodo, guardar, esMister, credenciales, comprobarToken, subirArchivo, repo } from './datos.js';
 import {
   $, $$, esc, fechaCorta, fechaLarga, diasHasta, aviso, idUnico, confeti,
-  redimensionarImagen, blobABase64, esNuestroEquipo, hoyISO,
+  redimensionarImagen, blobABase64, esNuestroEquipo, hoyISO, propio,
 } from './util.js';
 import {
   POSICIONES, jugador, partido, partidosOrdenados, jugados, proximoPartido, ultimoJugado, resultado,
@@ -13,6 +13,7 @@ import {
 import { leerConIA } from './ia.js';
 import { vistaAlineacion } from './alineacion.js';
 import { foto, nombreDe } from './componentes.js';
+import { bloqueVotacion, tarjetaMVP, avisoInicio, vistaVotacion } from './mvp.js';
 
 const app = $('#app');
 
@@ -109,6 +110,8 @@ function vistaInicio() {
       <p>${esc(eq.categoria)} · Gen. ${esc(eq.generacion)} · ${esc(eq.temporada)}</p>
     </div>
   </section>
+
+  ${avisoInicio()}
 
   ${prox ? `
   <a class="tarjeta proximo" href="#/partido/${esc(prox.id)}">
@@ -317,7 +320,6 @@ function vistaPartido(id) {
   const lista = (campo, icono) => Object.entries(st).filter(([, v]) => v[campo] > 0)
     .map(([jid, v]) => `<span class="pastilla">${icono.repeat(Math.min(v[campo], 5))} ${esc(nombreDe(jugador(jid)) || jid)}${v[campo] > 5 ? ' ×' + v[campo] : ''}</span>`).join('');
   const convocados = Object.entries(st).filter(([, v]) => v.conv).map(([jid]) => jugador(jid)).filter(Boolean);
-  const mvp = p.mvp && jugador(p.mvp);
   return `
   <div class="partido-cabecera ${r ? 'res-fondo-' + r : ''}">
     <div class="etiqueta">${esc(p.competicion || estado.equipo.categoria)} · Jornada ${esc(p.jornada ?? '-')}</div>
@@ -328,9 +330,11 @@ function vistaPartido(id) {
   </div>
   ${esMister() ? `<div class="acciones centro">
       <a class="boton" href="#/partido/${esc(id)}/stats">📝 Meter estadísticas</a>
+      <a class="boton secundario" href="#/partido/${esc(id)}/mvp">⭐ Votación MVP</a>
       <a class="boton secundario" href="#/partido/${esc(id)}/editar">✏️ Datos del partido</a>
     </div>` : ''}
-  ${mvp ? `<a class="tarjeta mvp" href="#/jugador/${esc(mvp.id)}"><div class="etiqueta">⭐ MVP DEL PARTIDO</div>${foto(mvp, 'media')}<b>${esc(nombreDe(mvp))}</b></a>` : ''}
+  ${bloqueVotacion(p)}
+  ${tarjetaMVP(p)}
   ${lista('goles', '⚽') ? `<h2>⚽ Goles</h2><div class="pastillas">${lista('goles', '⚽')}</div>` : ''}
   ${lista('asist', '🎁') ? `<h2>🎁 Asistencias</h2><div class="pastillas">${lista('asist', '🎁')}</div>` : ''}
   ${lista('amarillas', '🟨') || lista('rojas', '🟥') ? `<h2>Tarjetas</h2><div class="pastillas">${lista('amarillas', '🟨')}${lista('rojas', '🟥')}</div>` : ''}
@@ -412,11 +416,11 @@ function vistaStatsPartido(id) {
   if (!borrador || borrador.id !== id) {
     borrador = JSON.parse(JSON.stringify({ id, gf: p.goles_favor ?? 0, gc: p.goles_contra ?? 0, stats: p.stats || {}, mvp: p.mvp || null, cronica: p.cronica || '' }));
   }
-  const activos = estado.jugadores.filter(j => j.activo !== false || borrador.stats[j.id])
+  const activos = estado.jugadores.filter(j => j.activo !== false || propio(borrador.stats, j.id))
     .sort((a, b) => Object.keys(POSICIONES).indexOf(a.posicion) - Object.keys(POSICIONES).indexOf(b.posicion) || (a.dorsal || 99) - (b.dorsal || 99));
   const sumaGoles = Object.values(borrador.stats).reduce((a, s) => a + (s.conv ? s.goles || 0 : 0), 0);
   const contador = (jid, campo, icono) => {
-    const v = borrador.stats[jid]?.[campo] || 0;
+    const v = propio(propio(borrador.stats, jid), campo) || 0;
     // Tocar el icono suma 1; el "−" pequeño corrige.
     return `<div class="contador compacto" data-j="${esc(jid)}" data-c="${campo}">
       <button type="button" data-d="1" class="suma ${v ? 'con-valor' : ''}" aria-label="sumar ${campo}">${icono}${v ? ' ' + v : ''}</button>${v ? `<button type="button" data-d="-1" class="resta" aria-label="restar ${campo}">−</button>` : ''}</div>`;
@@ -436,7 +440,7 @@ function vistaStatsPartido(id) {
   <p class="ayuda">Toca el nombre para marcar <b>convocado</b>. 🔝 = titular · ⭐ = MVP.</p>
   ${!activos.length ? vacio('👕', 'Primero añade jugadores a la plantilla.', botonMister('#/jugador-nuevo', '+ Jugador')) : ''}
   <div class="lista-stats">${activos.map(j => {
-    const s = borrador.stats[j.id] || {};
+    const s = propio(borrador.stats, j.id) || {};
     return `
     <div class="fila-stat ${s.conv ? 'conv' : ''}">
       <button type="button" class="fs-nombre" data-conv="${esc(j.id)}">${foto(j, 'mini')}<span><b>${esc(j.dorsal ?? '')}</b> ${esc(nombreDe(j))}</span><span class="tick">${s.conv ? '✅' : '➕'}</span></button>
@@ -461,7 +465,7 @@ function vistaStatsPartido(id) {
 
 function enlazarStatsPartido(id) {
   if (!borrador) return;
-  const st = (jid) => (borrador.stats[jid] ||= { conv: false });
+  const st = (jid) => propio(borrador.stats, jid) || (borrador.stats[jid] = { conv: false });
   const repintar = () => { const y = scrollY; render(); scrollTo(0, y); };
 
   $$('[data-g]').forEach(c => c.addEventListener('click', ev => {
@@ -493,7 +497,7 @@ function enlazarStatsPartido(id) {
       for (const k of ['tit', 'min', 'goles', 'asist', 'amarillas', 'rojas', 'paradas']) if (s[k]) o[k] = s[k];
       limpio[jid] = o;
     }
-    Object.assign(p, { goles_favor: borrador.gf, goles_contra: borrador.gc, stats: limpio, mvp: borrador.mvp && limpio[borrador.mvp] ? borrador.mvp : null, cronica: borrador.cronica.trim(), estado: 'jugado' });
+    Object.assign(p, { goles_favor: borrador.gf, goles_contra: borrador.gc, stats: limpio, mvp: borrador.mvp && propio(limpio, borrador.mvp) ? borrador.mvp : null, cronica: borrador.cronica.trim(), estado: 'jugado' });
     try {
       await guardar('partidos', `Estadísticas J${p.jornada ?? ''} vs ${p.rival}: ${p.goles_favor}-${p.goles_contra}`);
       borrador = null;
@@ -874,6 +878,7 @@ const RUTAS = [
   [/^\/partido-nuevo$/, () => [vistaEditarPartido(null), () => enlazarEditarPartido(null)]],
   [/^\/partido\/([^/]+)\/editar$/, (id) => [vistaEditarPartido(id), () => enlazarEditarPartido(id)]],
   [/^\/partido\/([^/]+)\/stats$/, (id) => [vistaStatsPartido(id), () => enlazarStatsPartido(id)]],
+  [/^\/partido\/([^/]+)\/mvp$/, (id) => vistaVotacion(id)],
   [/^\/partido\/([^/]+)$/, (id) => [vistaPartido(id), () => enlazarPartido(id)]],
   [/^\/clasificacion$/, () => [vistaClasificacion()]],
   [/^\/goleadores$/, () => [vistaTablaJugadores('goles')]],
