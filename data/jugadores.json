@@ -8,5 +8,15 @@
     "posicion": "DEF",
     "superpoder": "",
     "activo": true
+  },
+  {
+    "id": "modric",
+    "foto": null,
+    "nombre": "Luka Marrtin",
+    "apodo": "Modric",
+    "dorsal": 10,
+    "posicion": "MED",
+    "superpoder": "",
+    "activo": true
   }
 ]
