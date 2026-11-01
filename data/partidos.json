@@ -45,7 +45,23 @@
     "stats": {},
     "mvp": null,
     "cronica": "",
-    "competicion": null
+    "competicion": null,
+    "alineacion": {
+      "f": "4-3-3",
+      "j": [
+        "",
+        "danel-marrin",
+        "",
+        "constructor",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "modric",
+        ""
+      ]
+    }
   },
   {
     "id": "j4-indartsu",
