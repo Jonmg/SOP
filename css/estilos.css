@@ -234,6 +234,15 @@ a.tarjeta:active { transform: scale(.99); }
 .pestanas { display: flex; gap: 6px; margin: 8px 0 12px; }
 .pestanas button { flex: 1; min-height: 40px; border-radius: 99px; border: 1px solid var(--borde); background: var(--panel); color: var(--suave); font: 600 .9rem Inter, sans-serif; cursor: pointer; }
 .pestanas button.activa { background: var(--acento); color: #111; border-color: var(--acento); }
+.pestanas a { flex: 1; display: grid; place-items: center; min-height: 40px; border-radius: 99px; border: 1px solid var(--borde); background: var(--panel); color: var(--suave); font: 600 .85rem Inter, sans-serif; text-decoration: none; white-space: nowrap; padding: 0 8px; }
+.pestanas a.activa { background: var(--acento); color: #111; border-color: var(--acento); }
+.ranking-tabla td { vertical-align: middle; }
+.ranking-tabla tbody tr { cursor: pointer; }
+.ranking-tabla .puesto { font-weight: 800; font-size: 1.1rem; width: 2.2em; }
+.ranking-tabla .col-activa { color: var(--acento); font-family: var(--titulo); font-size: 1.5rem; }
+.ranking-tabla th.col-activa { font-family: inherit; font-size: .9rem; }
+.celda-jugador { display: flex; align-items: center; gap: 8px; }
+.celda-jugador small { display: block; color: var(--suave); font-size: .72rem; }
 .lista-partidos { display: flex; flex-direction: column; gap: 8px; }
 .fila-partido { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--panel); border: 1px solid var(--borde); border-left: 5px solid var(--borde); border-radius: 14px; color: var(--texto); text-decoration: none; }
 .fila-partido.es-proximo { border-color: var(--acento); box-shadow: 0 0 0 2px color-mix(in srgb, var(--acento) 35%, transparent); }

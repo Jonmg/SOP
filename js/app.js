@@ -151,7 +151,7 @@ function vistaInicio() {
     ${podio('Asistencias', '🎁', 'asist')}
     ${podio('MVP', '⭐', 'mvp')}
   </div>
-  ${b.pj ? `<p class="centro"><a class="boton secundario" href="#/stats">Ver todas las estadísticas →</a></p>` : ''}`;
+  ${b.pj ? `<p class="centro acciones"><a class="boton secundario" href="#/goleadores">⚽ Goleadores</a><a class="boton secundario" href="#/asistencias">🎁 Asistencias</a><a class="boton secundario" href="#/stats">📊 Todo</a></p>` : ''}`;
 }
 
 function vistaPlantilla() {
@@ -509,6 +509,7 @@ function vistaClasificacion() {
   const tabla = c.tabla || [];
   const conGoles = tabla.some(f => f.gf != null || f.gc != null);
   return `
+  ${pestanasTabla('clasificacion')}
   <div class="cabecera"><h1>🏆 Clasificación</h1>
     ${esMister() ? `<div class="acciones"><a class="boton" href="#/importar/clasificacion">📸 Actualizar</a></div>` : ''}</div>
   <p class="sub">${esc(estado.equipo.categoria)}${c.jornada ? ' · Jornada ' + esc(c.jornada) : ''}${c.actualizado ? ' · Actualizada ' + esc(fechaCorta(c.actualizado)) : ''}</p>
@@ -667,6 +668,77 @@ function enlazarImportar(tipo) {
   pintar();
 }
 
+// ---------- Goleadores y asistentes (tabla de totales) ----------
+function pestanasTabla(activa) {
+  const t = [['clasificacion', '🏆 Liga'], ['goleadores', '⚽ Goleadores'], ['asistencias', '🎁 Asistencias']];
+  return `<nav class="pestanas">${t.map(([r, txt]) => `<a href="#/${r}" class="${r === activa ? 'activa' : ''}">${txt}</a>`).join('')}</nav>`;
+}
+
+function vistaTablaJugadores(campo) {
+  const otro = campo === 'goles' ? 'asist' : 'goles';
+  // Todos los de la plantilla, también los inactivos: sus goles siguen siendo del equipo.
+  const todos = estado.jugadores.map(j => ({ jugador: j, s: statsJugador(j.id) }));
+  const filas = todos
+    .filter(x => x.s[campo] > 0)
+    .sort((a, b) => b.s[campo] - a.s[campo] || b.s[otro] - a.s[otro] || a.s.pj - b.s.pj
+      || nombreDe(a.jugador).localeCompare(nombreDe(b.jugador)));
+  // Empates comparten puesto (1, 1, 3…)
+  let puesto = 0;
+  filas.forEach((x, i) => {
+    if (i === 0 || x.s[campo] !== filas[i - 1].s[campo]) puesto = i + 1;
+    x.puesto = puesto;
+  });
+
+  const b = balanceEquipo();
+  const asignados = todos.reduce((a, x) => a + x.s.goles, 0) + golesDeBajas();
+  const asistTotal = todos.reduce((a, x) => a + x.s.asist, 0);
+  const pendientes = jugados().filter(p => (p.goles_favor || 0) > Object.values(p.stats || {}).reduce((a, s) => a + (s.goles || 0), 0));
+  const esGoles = campo === 'goles';
+  const medalla = (n) => ['🥇', '🥈', '🥉'][n - 1] || n;
+
+  return `
+  ${pestanasTabla(esGoles ? 'goleadores' : 'asistencias')}
+  <h1>${esGoles ? '⚽ Goleadores' : '🎁 Asistencias'}</h1>
+  <div class="tarjeta"><div class="balance">
+    ${esGoles ? `
+      <div><b>${b.gf}</b><small>Goles del equipo</small></div>
+      <div><b>${filas.length}</b><small>Goleadores distintos</small></div>
+      <div><b>${b.pj ? (b.gf / b.pj).toFixed(1) : '0'}</b><small>Goles por partido</small></div>`
+    : `
+      <div><b>${asistTotal}</b><small>Asistencias</small></div>
+      <div><b>${filas.length}</b><small>Asistentes distintos</small></div>
+      <div><b>${b.gf ? Math.round(asistTotal / b.gf * 100) : 0}%</b><small>Goles asistidos</small></div>`}
+  </div></div>
+
+  ${filas.length ? `<div class="tabla-scroll"><table class="tabla ranking-tabla">
+    <thead><tr><th>#</th><th class="izq">Jugador</th><th>PJ</th>
+      <th class="${esGoles ? 'col-activa' : ''}">⚽</th><th class="${!esGoles ? 'col-activa' : ''}">🎁</th><th>⚽+🎁</th><th>${esGoles ? '⚽' : '🎁'}/PJ</th></tr></thead>
+    <tbody>${filas.map(x => `
+      <tr onclick="location.hash='#/jugador/${esc(x.jugador.id)}'">
+        <td class="puesto">${medalla(x.puesto)}</td>
+        <td class="izq"><span class="celda-jugador">${foto(x.jugador, 'mini')}<span><b>${esc(nombreDe(x.jugador))}</b><small>${esc(x.jugador.dorsal ?? '')} · ${esc(x.jugador.posicion || '')}</small></span></span></td>
+        <td>${x.s.pj}</td>
+        <td class="${esGoles ? 'col-activa' : ''}">${x.s.goles}</td>
+        <td class="${!esGoles ? 'col-activa' : ''}">${x.s.asist}</td>
+        <td>${x.s.goles + x.s.asist}</td>
+        <td>${x.s.pj ? (x.s[campo] / x.s.pj).toFixed(2) : '-'}</td>
+      </tr>`).join('')}
+    </tbody></table></div>`
+    : vacio(esGoles ? '⚽' : '🎁', esGoles ? 'Todavía no hay goles asignados a jugadores.' : 'Todavía no hay asistencias apuntadas.')}
+
+  ${esGoles && b.gf > asignados ? `
+  <p class="aviso-linea">⚠️ ${b.gf - asignados} gol${b.gf - asignados === 1 ? '' : 'es'} del equipo sin autor apuntado
+    (${pendientes.map(p => `<a href="#/${esMister() ? `partido/${esc(p.id)}/stats` : `partido/${esc(p.id)}`}">J${esc(p.jornada ?? '')}</a>`).join(', ')}).
+    ${esMister() ? 'Toca la jornada para completarlo.' : ''}</p>` : ''}`;
+}
+
+// Goles de jugadores que ya no están en la plantilla (siguen contando para el equipo).
+function golesDeBajas() {
+  const ids = new Set(estado.jugadores.map(j => j.id));
+  return jugados().reduce((a, p) => a + Object.entries(p.stats || {})
+    .filter(([id, s]) => !ids.has(id) && s.conv).reduce((x, [, s]) => x + (s.goles || 0), 0), 0);
+}
+
 // ---------- Estadísticas completas ----------
 function vistaStats() {
   const b = balanceEquipo();
@@ -804,6 +876,8 @@ const RUTAS = [
   [/^\/partido\/([^/]+)\/stats$/, (id) => [vistaStatsPartido(id), () => enlazarStatsPartido(id)]],
   [/^\/partido\/([^/]+)$/, (id) => [vistaPartido(id), () => enlazarPartido(id)]],
   [/^\/clasificacion$/, () => [vistaClasificacion()]],
+  [/^\/goleadores$/, () => [vistaTablaJugadores('goles')]],
+  [/^\/asistencias$/, () => [vistaTablaJugadores('asist')]],
   [/^\/importar\/(clasificacion|calendario)$/, (t) => [vistaImportar(t), () => enlazarImportar(t)]],
   [/^\/stats$/, () => [vistaStats()]],
   [/^\/alineacion$/, (_, q) => vistaAlineacion(q)],
@@ -825,7 +899,7 @@ export function render() {
   const seccion = '/' + (ruta.split('/')[1] || '');
   $$('#nav a').forEach(a => {
     const destino = a.getAttribute('href').slice(1);
-    const grupo = { '/jugador': '/plantilla', '/jugador-nuevo': '/plantilla', '/partido': '/calendario', '/partido-nuevo': '/calendario', '/stats': '/', '/importar': ruta.endsWith('clasificacion') ? '/clasificacion' : '/calendario' }[seccion] ?? seccion;
+    const grupo = { '/jugador': '/plantilla', '/jugador-nuevo': '/plantilla', '/partido': '/calendario', '/partido-nuevo': '/calendario', '/stats': '/', '/goleadores': '/clasificacion', '/asistencias': '/clasificacion', '/importar': ruta.endsWith('clasificacion') ? '/clasificacion' : '/calendario' }[seccion] ?? seccion;
     a.classList.toggle('activa', destino === grupo || (destino === '/' && grupo === '/'));
   });
   $('#chip-mister').hidden = !esMister();
