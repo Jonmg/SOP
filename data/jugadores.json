@@ -18,5 +18,15 @@
     "posicion": "MED",
     "superpoder": "",
     "activo": true
+  },
+  {
+    "id": "constructor",
+    "foto": null,
+    "nombre": "Amets Martin",
+    "apodo": "Constructor",
+    "dorsal": 11,
+    "posicion": "DEF",
+    "superpoder": "",
+    "activo": true
   }
 ]
